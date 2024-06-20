@@ -25,18 +25,6 @@ Linux:
 clouod-provider-kind
 ```
 
-### Install CA Certs [2](https://istio.io/latest/docs/tasks/security/cert-management/plugin-ca-cert/)
-
-A multicluster service mesh deployment requires that us to establish trust between all clusters in the mesh. We use a
-common root to generate intermediate certificates for each cluster
-
-Note: in this script we -label istio namespace as "topology.istio.io/network=network${i}"
-
-```shell
-cd kind-setup
-./install-cacerts.sh
-```
-
 ---
 
 ## Istio Setup
