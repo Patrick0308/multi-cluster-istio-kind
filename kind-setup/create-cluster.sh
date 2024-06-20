@@ -41,10 +41,13 @@ function create-clusters() {
     image_arg="--image=kindest/node:${KIND_TAG}"
   fi
   for i in $(seq "${num_clusters}"); do
-    kind create cluster --name "cluster${i}" "${image_arg}"
-    fixup-cluster "${i}"
-    echo
-
+    if kind get clusters | grep -q "cluster${i}"; then
+      echo "Cluster cluster${i} already exists, skipping creation."
+    else
+      kind create cluster --name "cluster${i}" "${image_arg}"
+      fixup-cluster "${i}"
+      echo
+    fi
   done
 }
 
