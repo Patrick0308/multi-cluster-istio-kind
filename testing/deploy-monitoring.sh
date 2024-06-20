@@ -6,7 +6,7 @@ set -o nounset
 set -o pipefail
 
 
-NUM_CLUSTERS="${NUM_CLUSTERS:-2}"
+NUM_CLUSTERS="${1:-2}"
 
 for i in $(seq "${NUM_CLUSTERS}"); do
   echo "Starting with cluster${i}"

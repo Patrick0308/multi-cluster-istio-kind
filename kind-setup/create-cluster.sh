@@ -26,7 +26,7 @@ set -o nounset
 set -o pipefail
 
 # shellcheck source=util.sh
-NUM_CLUSTERS="${NUM_CLUSTERS:-2}"
+NUM_CLUSTERS="${1:-2}"
 KIND_IMAGE="${KIND_IMAGE:-}"
 KIND_TAG="${KIND_TAG:-v1.27.3}"
 OS="$(uname)"

@@ -8,21 +8,16 @@ This repo contains the minimal configuration to deploy istio in multi-cluster(on
 - kubectl
 - kind
 - istioctl
+- [cloud-provider-kind](https://github.com/kubernetes-sigs/cloud-provider-kind)
 
 ---
 
-### Run cloud-provider-kind [1](https://github.com/kubernetes-sigs/cloud-provider-kind)
+### Run cloud-provider-kind
 
-Mac OS:
-
-```shell
-sudo clouod-provider-kind
-```
-
-Linux:
+Both ingress and egress gateway created by istio need to External IP. Cloud provider kind allocates it for them.
 
 ```shell
-clouod-provider-kind
+sudo cloud-provider-kind
 ```
 
 ---
@@ -37,7 +32,7 @@ It does the following for each cluster:
 - install remote secret of this cluster in the other cluster to enable k8s api server endpoint discovery
 
 ```shell
-./istio-deploy/${choice}/install-istio.yaml
+./istio-deploy/${topology}/install-istio.yaml
 ```
 
 ---
@@ -53,8 +48,7 @@ It does the following:
 - deploy v1 and v2 of helloworld alternatively in each cluster
 
 ```shell
-cd testing
-./deploy-application.sh
+./testing/deploy-application.sh ${clusters_num}
 ```
 
 ### Test the magic [4](https://istio.io/latest/docs/setup/install/multicluster/verify/)
