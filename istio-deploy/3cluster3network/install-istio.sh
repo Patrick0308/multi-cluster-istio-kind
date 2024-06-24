@@ -9,9 +9,10 @@ set -o pipefail
 
 OS="$(uname)"
 NUM_CLUSTERS=3
-script_dir=$(dirname "$(readlink -f "$0")")
-${script_dir}/../../kind-setup/create-cluster.sh ${NUM_CLUSTERS}
-${script_dir}/../../kind-setup/install-cacerts.sh ${NUM_CLUSTERS}
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+REPO_ROOT=$(git rev-parse --show-toplevel)
+${REPO_ROOT}/kind-setup/create-cluster.sh ${NUM_CLUSTERS}
+${REPO_ROOT}/kind-setup/install-cacerts.sh ${NUM_CLUSTERS}
 
 for i in $(seq "${NUM_CLUSTERS}"); do
   echo "Starting istio deployment in cluster${i}"
@@ -19,18 +20,20 @@ for i in $(seq "${NUM_CLUSTERS}"); do
   kubectl --context="cluster${i}" get namespace istio-system && \
     kubectl --context="cluster${i}" label namespace istio-system topology.istio.io/network="network${i}" --overwrite=true
 
-   sed -e "s/{i}/${i}/" cluster.yaml > "cluster${i}.yaml"
-  istioctl install --force --context="cluster${i}" -f "${script_dir}/cluster${i}.yaml" -y
+  echo "Delete eastwest gateway in cluster${i}"
+  kubectl delete deploy -n istio-system --context="cluster${i}" istio-eastwestgateway 
+
+  istioctl install --force --context="cluster${i}" -f "${SCRIPT_DIR}/cluster${i}.yaml" -y
 
   echo "Generate eastwest gateway in cluster${i}"
-  ${script_dir}/samples/multicluster/gen-eastwest-gateway.sh \
+  ${REPO_ROOT}/istio-setup/samples/multicluster/gen-eastwest-gateway.sh \
       --mesh "mesh${i}" --cluster "cluster${i}" --network "network${i}" | \
       istioctl --context="cluster${i}" install -y -f -
 
   echo "Expose services in cluster${i}"
-  kubectl --context="cluster${i}" apply -n istio-system -f ${script_dir}/samples/multicluster/expose-services.yaml
+  kubectl --context="cluster${i}" apply -n istio-system -f ${REPO_ROOT}/istio-setup/samples/multicluster/expose-services.yaml
 
   echo
 done
 
-${script_dir}/enable-endpoint-discovery.sh
+${SCRIPT_DIR}/enable-endpoint-discovery.sh
