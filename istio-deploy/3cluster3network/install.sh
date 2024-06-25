@@ -36,4 +36,4 @@ for i in $(seq "${NUM_CLUSTERS}"); do
   echo
 done
 
-${SCRIPT_DIR}/enable-endpoint-discovery.sh
+${REPO_ROOT}/istio-setup/enable-endpoint-discovery.sh ${NUM_CLUSTERS}

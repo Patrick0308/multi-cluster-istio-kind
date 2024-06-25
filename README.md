@@ -32,7 +32,7 @@ It does the following for each cluster:
 - install remote secret of this cluster in the other cluster to enable k8s api server endpoint discovery
 
 ```shell
-./istio-deploy/${topology}/install-istio.yaml
+./istio-deploy/${topology}/install.yaml
 ```
 
 ---

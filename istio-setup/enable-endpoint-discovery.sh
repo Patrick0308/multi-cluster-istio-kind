@@ -8,7 +8,7 @@ set -o pipefail
 
 
 OS="$(uname)"
-NUM_CLUSTERS="${NUM_CLUSTERS:-2}"
+NUM_CLUSTERS="${1:-2}"
 
 for i in $(seq "${NUM_CLUSTERS}"); do
   for j in $(seq "${NUM_CLUSTERS}"); do

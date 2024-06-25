@@ -8,7 +8,7 @@ set -o pipefail
 
 
 OS="$(uname)"
-NUM_CLUSTERS=3
+NUM_CLUSTERS=2
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 REPO_ROOT=$(git rev-parse --show-toplevel)
 ${REPO_ROOT}/kind-setup/create-cluster.sh ${NUM_CLUSTERS}
@@ -16,23 +16,18 @@ ${REPO_ROOT}/kind-setup/install-cacerts.sh ${NUM_CLUSTERS}
 
 for i in $(seq "${NUM_CLUSTERS}"); do
   echo "Starting istio deployment in cluster${i}"
-  network=network${i}
-  if [ ${i} == 2 ]
-  then
-    network=network1
-  fi
 
   kubectl --context="cluster${i}" get namespace istio-system && \
-    kubectl --context="cluster${i}" label namespace istio-system topology.istio.io/network="${network}" --overwrite=true
+    kubectl --context="cluster${i}" label namespace istio-system topology.istio.io/network="network${i}" --overwrite=true
 
   echo "Delete eastwest gateway in cluster${i}"
-  kubectl delete deploy -n istio-system --context="cluster${i}" istio-eastwestgateway 
+  kubectl delete deploy -n istio-system --context="cluster${i}" istio-eastwestgateway --ignore-not-found
 
   istioctl install --force --context="cluster${i}" -f "${SCRIPT_DIR}/cluster${i}.yaml" -y
 
   echo "Generate eastwest gateway in cluster${i}"
   ${REPO_ROOT}/istio-setup/samples/multicluster/gen-eastwest-gateway.sh \
-      --mesh "mesh1" --cluster "cluster${i}" --network "${network}" | \
+      --mesh "mesh${i}" --cluster "cluster${i}" --network "network${i}" | \
       istioctl --context="cluster${i}" install -y -f -
 
   echo "Expose services in cluster${i}"
@@ -41,4 +36,4 @@ for i in $(seq "${NUM_CLUSTERS}"); do
   echo
 done
 
-${SCRIPT_DIR}/enable-endpoint-discovery.sh
+${REPO_ROOT}/istio-setup/enable-endpoint-discovery.sh ${NUM_CLUSTERS}
